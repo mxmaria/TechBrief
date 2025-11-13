@@ -5,12 +5,22 @@
 //  Created by Maria on 12.11.2025.
 //
 
-import Testing
+import XCTest
+@testable import TechBrief
 
-struct TechBriefTests {
+final class HTTPClientTests: XCTestCase {
 
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    func testDecodingSampleArticle() throws {
+        let bundle = Bundle(for: type(of: self))
+        let url = bundle.url(forResource: "sample_article", withExtension: "json")
+        XCTAssertNotNil(url, "Fixture file not found")
+
+        let data = try Data(contentsOf: try XCTUnwrap(url))
+
+        let decoder = JSONDecoder()
+        let article = try decoder.decode(SampleArticle.self, from: data)
+
+        XCTAssertEqual(article.title, "Test Article")
+        XCTAssertEqual(article.url, "https://example.com")
     }
-
 }
