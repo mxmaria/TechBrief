@@ -15,6 +15,9 @@
 		DF4EC3AE2EC4EFF9006882E2 /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF4EC3AD2EC4EFF7006882E2 /* Article.swift */; };
 		DF4EC3B02EC5FE8B006882E2 /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF4EC3AF2EC5FE89006882E2 /* HTTPClient.swift */; };
 		DF4EC3B22EC60146006882E2 /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF4EC3B12EC6013F006882E2 /* APIError.swift */; };
+		DF4EC3BA2EC77995006882E2 /* HNModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF4EC3B92EC77993006882E2 /* HNModels.swift */; };
+		DF4EC3BC2EC779B9006882E2 /* HNService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF4EC3BB2EC779B8006882E2 /* HNService.swift */; };
+		DF4EC3BE2EC785E6006882E2 /* ArticleViewData.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF4EC3BD2EC785E3006882E2 /* ArticleViewData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +50,9 @@
 		DF4EC3AD2EC4EFF7006882E2 /* Article.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
 		DF4EC3AF2EC5FE89006882E2 /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
 		DF4EC3B12EC6013F006882E2 /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
+		DF4EC3B92EC77993006882E2 /* HNModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HNModels.swift; sourceTree = "<group>"; };
+		DF4EC3BB2EC779B8006882E2 /* HNService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HNService.swift; sourceTree = "<group>"; };
+		DF4EC3BD2EC785E3006882E2 /* ArticleViewData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArticleViewData.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -110,6 +116,8 @@
 		DF4EC3992EC4EE43006882E2 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				DF4EC3BD2EC785E3006882E2 /* ArticleViewData.swift */,
+				DF4EC3B92EC77993006882E2 /* HNModels.swift */,
 				DF4EC3AD2EC4EFF7006882E2 /* Article.swift */,
 			);
 			path = Models;
@@ -157,6 +165,7 @@
 		DF4EC3A72EC4EEA0006882E2 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				DF4EC3BB2EC779B8006882E2 /* HNService.swift */,
 				DF4EC3B12EC6013F006882E2 /* APIError.swift */,
 				DF4EC3AF2EC5FE89006882E2 /* HTTPClient.swift */,
 			);
@@ -315,6 +324,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				DF4EC3AE2EC4EFF9006882E2 /* Article.swift in Sources */,
+				DF4EC3BC2EC779B9006882E2 /* HNService.swift in Sources */,
+				DF4EC3BE2EC785E6006882E2 /* ArticleViewData.swift in Sources */,
+				DF4EC3BA2EC77995006882E2 /* HNModels.swift in Sources */,
 				DF4EC3B02EC5FE8B006882E2 /* HTTPClient.swift in Sources */,
 				DF4EC3AA2EC4EF47006882E2 /* HomeView.swift in Sources */,
 				DF4EC3AC2EC4EFA8006882E2 /* HomeViewModel.swift in Sources */,
