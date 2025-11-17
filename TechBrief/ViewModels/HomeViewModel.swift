@@ -21,18 +21,20 @@ final class HomeViewModel: ObservableObject {
     
     private let service = HNService()
     
+    @MainActor
     func load() async {
         state = .loading
-        
         do {
             let hnArticles = try await service.fetchTopArticles()
-            self.articles = hnArticles.map { $0.toViewData() }
+            let viewData = hnArticles.map { $0.toViewData() }
+            articles = viewData
             state = .loaded
         } catch {
-            state = .error(String(describing: error))
+            state = .error(error.localizedDescription)
         }
     }
     
+    @MainActor
     func retry() async {
         await load()
     }

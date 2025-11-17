@@ -14,6 +14,9 @@ struct HomeView: View {
         NavigationStack {
             content
                 .navigationTitle("TechBrief")
+                .navigationDestination(for: ArticleViewData.self) { article in
+                    ArticleDetailView(article: article)
+                }
         }
         .task {
             if case .idle = viewModel.state {
@@ -50,20 +53,9 @@ struct HomeView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List(viewModel.articles) { article in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(article.title)
-                            .font(.headline)
-                            .lineLimit(2)
-                        
-                        HStack(spacing: 4) {
-                            Text(article.source)
-                            Text("•")
-                            Text(article.timeAgo)
-                        }
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    NavigationLink(value: article) {
+                        ArticleRowView(article: article)
                     }
-                    .padding(.vertical, 4)
                 }
                 .listStyle(.plain)
             }
