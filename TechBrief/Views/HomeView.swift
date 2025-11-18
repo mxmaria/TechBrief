@@ -54,10 +54,12 @@ struct HomeView: View {
             } else {
                 List(viewModel.articles) { article in
                     NavigationLink(value: article) {
-                        ArticleRowView(article: article)
+                        ArticleRowView(article: article) {
+                            viewModel.toggleSaved(for: article)
+                        }
                     }
                 }
-                .listStyle(.plain)
+                .listStyle(.insetGrouped)
             }
         }
     }

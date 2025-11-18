@@ -11,7 +11,17 @@ import SwiftUI
 struct TechBriefApp: App {
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            TabView {
+                HomeView()
+                    .tabItem {
+                        Label("Home", systemImage: "house")
+                    }
+
+                SavedView()
+                    .tabItem {
+                        Label("Saved", systemImage: "star")
+                    }
+            }
         }
     }
 }

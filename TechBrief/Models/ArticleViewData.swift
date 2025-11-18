@@ -13,4 +13,22 @@ struct ArticleViewData: Identifiable, Hashable {
     let source: String
     let timeAgo: String
     let url: URL?
+    var isSaved: Bool
+
+    init(
+        id: String,
+        title: String,
+        source: String,
+        timeAgo: String,
+        url: URL?,
+        isSaved: Bool = false
+    ) {
+        self.id = id
+        self.title = title
+        self.source = source
+        self.timeAgo = timeAgo
+        self.url = url
+        self.isSaved = isSaved
+    }
 }
+

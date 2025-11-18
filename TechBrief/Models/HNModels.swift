@@ -36,6 +36,7 @@ extension HNArticle {
             source: author.isEmpty ? "Hacker News" : author,
             timeAgo: Self.timeAgo(from: createdAt),
             url: URL(string: url ?? "")
+            // isSaved uses default = false
         )
     }
 
