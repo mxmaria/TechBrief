@@ -14,6 +14,9 @@ struct HomeView: View {
         NavigationStack {
             content
                 .navigationTitle("TechBrief")
+                .navigationBarTitleDisplayMode(.large)
+                .toolbarBackground(.automatic, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
                 .navigationDestination(for: ArticleViewData.self) { article in
                     ArticleDetailView(article: article)
                 }
@@ -49,8 +52,11 @@ struct HomeView: View {
             
         case .loaded:
             if viewModel.articles.isEmpty {
-                Text("No articles")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                ContentUnavailableView(
+                    "No articles yet",
+                    systemImage: "newspaper",
+                    description: Text("Pull to refresh or check your connection.")
+                )
             } else {
                 List(viewModel.articles) { article in
                     NavigationLink(value: article) {
@@ -60,6 +66,9 @@ struct HomeView: View {
                     }
                 }
                 .listStyle(.insetGrouped)
+                .refreshable {
+                            await viewModel.load()
+                        }
             }
         }
     }
