@@ -33,7 +33,7 @@ extension HNArticle {
         ArticleViewData(
             id: id,
             title: title,
-            source: author.isEmpty ? "Hacker News" : author,
+            source: "Hacker News",
             timeAgo: Self.timeAgo(from: createdAt),
             url: URL(string: url ?? "")
             // isSaved uses default = false

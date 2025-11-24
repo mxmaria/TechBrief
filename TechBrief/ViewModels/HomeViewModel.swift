@@ -19,17 +19,26 @@ final class HomeViewModel: ObservableObject {
     @Published private(set) var articles: [ArticleViewData] = []
     @Published private(set) var state: State = .idle
     
-    private let service = HNService()
+    private let hnService = HNService()
+    private let devToService = DevToService()
     private let savedStore = SavedArticlesStore()
     
     @MainActor
     func load() async {
         state = .loading
         do {
-            let hnArticles = try await service.fetchTopArticles()
-            let mapped = hnArticles.map { $0.toViewData() }
+            async let hnTask = hnService.fetchTopArticles()
+            async let devTask = devToService.fetchLatestArticles()
             
-            let withSaved = mapped.map { article -> ArticleViewData in
+            let hnArticles = try await hnTask
+            let devArticles = try await devTask
+            
+            let hnViewData = hnArticles.map { $0.toViewData() }
+            let devViewData = devArticles.map { ArticleViewData(from: $0) }
+            
+            let unified = hnViewData + devViewData
+            
+            let withSaved = unified.map { article -> ArticleViewData in
                 var copy = article
                 copy.isSaved = savedStore.isSaved(article.id)
                 return copy
@@ -51,7 +60,7 @@ final class HomeViewModel: ObservableObject {
     @MainActor
     func toggleSaved(for article: ArticleViewData) {
         savedStore.toggle(id: article.id)
-
+        
         if let idx = articles.firstIndex(where: { $0.id == article.id }) {
             articles[idx].isSaved.toggle()
         }

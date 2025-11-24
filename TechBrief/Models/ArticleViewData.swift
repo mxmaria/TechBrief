@@ -32,3 +32,16 @@ struct ArticleViewData: Identifiable, Hashable {
     }
 }
 
+
+extension ArticleViewData {
+    init(from dev: DevToArticle) {
+        self.init(
+            id: String(dev.id),
+            title: dev.title,
+            source: "Dev.to",
+            timeAgo: dev.readable_publish_date ?? "",
+            url: URL(string: dev.url),
+            isSaved: false
+        )
+    }
+}
