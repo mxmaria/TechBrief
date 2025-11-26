@@ -14,12 +14,28 @@ struct HomeView: View {
         NavigationStack {
             content
                 .navigationTitle("TechBrief")
-                .navigationBarTitleDisplayMode(.large)
-                .toolbarBackground(.automatic, for: .navigationBar)
-                .toolbarBackground(.visible, for: .navigationBar)
+                .searchable(
+                    text: $viewModel.searchText,
+                    placement: .navigationBarDrawer(displayMode: .automatic),
+                    prompt: "Search by title or source"
+                )
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Picker("Source", selection: $viewModel.sourceFilter) {
+                            ForEach(HomeViewModel.SourceFilter.allCases) { filter in
+                                Text(filter.rawValue).tag(filter)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        .frame(maxWidth: 260)
+                    }
+                }
                 .navigationDestination(for: ArticleViewData.self) { article in
                     ArticleDetailView(article: article)
                 }
+                .navigationBarTitleDisplayMode(.large)
+                .toolbarBackground(.automatic, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
         }
         .task {
             if case .idle = viewModel.state {
@@ -51,14 +67,16 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             
         case .loaded:
-            if viewModel.articles.isEmpty {
+            let listArticles = viewModel.filteredArticles
+            
+            if listArticles.isEmpty {
                 ContentUnavailableView(
-                    "No articles yet",
-                    systemImage: "newspaper",
-                    description: Text("Pull to refresh or check your connection.")
+                    "No articles found",
+                    systemImage: "magnifyingglass",
+                    description: Text("Try a different search or source.")
                 )
             } else {
-                List(viewModel.articles) { article in
+                List(listArticles) { article in
                     NavigationLink(value: article) {
                         ArticleRowView(article: article) {
                             viewModel.toggleSaved(for: article)
@@ -67,8 +85,8 @@ struct HomeView: View {
                 }
                 .listStyle(.insetGrouped)
                 .refreshable {
-                            await viewModel.load()
-                        }
+                    await viewModel.load()
+                }
             }
         }
     }

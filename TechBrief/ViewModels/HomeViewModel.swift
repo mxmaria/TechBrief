@@ -16,8 +16,18 @@ final class HomeViewModel: ObservableObject {
         case error(String)
     }
     
+    enum SourceFilter: String, CaseIterable, Identifiable {
+        case all = "All"
+        case hackerNews = "Hacker News"
+        case devTo = "Dev.to"
+
+        var id: String { rawValue }
+    }
+    
     @Published private(set) var articles: [ArticleViewData] = []
     @Published private(set) var state: State = .idle
+    @Published var searchText: String = ""
+    @Published var sourceFilter: SourceFilter = .all
     
     private let hnService = HNService()
     private let devToService = DevToService()
@@ -64,5 +74,30 @@ final class HomeViewModel: ObservableObject {
         if let idx = articles.firstIndex(where: { $0.id == article.id }) {
             articles[idx].isSaved.toggle()
         }
+    }
+    
+    var filteredArticles: [ArticleViewData] {
+        var result = articles
+
+        // source filter
+        switch sourceFilter {
+        case .all:
+            break
+        case .hackerNews:
+            result = result.filter { $0.source == "Hacker News" }
+        case .devTo:
+            result = result.filter { $0.source == "Dev.to" }
+        }
+
+        // search filter (title or source)
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        if !query.isEmpty {
+            result = result.filter {
+                $0.title.lowercased().contains(query) ||
+                $0.source.lowercased().contains(query)
+            }
+        }
+
+        return result
     }
 }
