@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 final class HomeViewModel: ObservableObject {
     
     enum State {
@@ -20,22 +21,32 @@ final class HomeViewModel: ObservableObject {
         case all = "All"
         case hackerNews = "Hacker News"
         case devTo = "Dev.to"
-
+        
         var id: String { rawValue }
     }
     
     @Published private(set) var articles: [ArticleViewData] = []
     @Published private(set) var state: State = .idle
+    
     @Published var searchText: String = ""
     @Published var sourceFilter: SourceFilter = .all
     
     private let hnService = HNService()
     private let devToService = DevToService()
     private let savedStore = SavedArticlesStore()
+    private let cache = ArticleCache()
     
     @MainActor
     func load() async {
-        state = .loading
+        if articles.isEmpty, let cached = cache.load() {
+            let withSaved = applySavedState(to: cached)
+            articles = withSaved
+            state = .loaded
+        } else if articles.isEmpty {
+            // no cache and nothing loaded: show spinner
+            state = .loading
+        }
+        
         do {
             async let hnTask = hnService.fetchTopArticles()
             async let devTask = devToService.fetchLatestArticles()
@@ -48,17 +59,15 @@ final class HomeViewModel: ObservableObject {
             
             let unified = hnViewData + devViewData
             
-            let withSaved = unified.map { article -> ArticleViewData in
-                var copy = article
-                copy.isSaved = savedStore.isSaved(article.id)
-                return copy
-            }
+            let withSaved = applySavedState(to: unified)
             
             self.articles = withSaved
             state = .loaded
             
         } catch {
-            state = .error(error.localizedDescription)
+            if articles.isEmpty {
+                state = .error(error.localizedDescription)
+            }
         }
     }
     
@@ -78,7 +87,7 @@ final class HomeViewModel: ObservableObject {
     
     var filteredArticles: [ArticleViewData] {
         var result = articles
-
+        
         // source filter
         switch sourceFilter {
         case .all:
@@ -88,7 +97,7 @@ final class HomeViewModel: ObservableObject {
         case .devTo:
             result = result.filter { $0.source == "Dev.to" }
         }
-
+        
         // search filter (title or source)
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         if !query.isEmpty {
@@ -97,7 +106,15 @@ final class HomeViewModel: ObservableObject {
                 $0.source.lowercased().contains(query)
             }
         }
-
+        
         return result
+    }
+    
+    private func applySavedState(to articles: [ArticleViewData]) -> [ArticleViewData] {
+        articles.map { article in
+            var copy = article
+            copy.isSaved = savedStore.isSaved(article.id)
+            return copy
+        }
     }
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ArticleViewData: Identifiable, Hashable {
+struct ArticleViewData: Identifiable, Hashable, Codable {
     let id: String
     let title: String
     let source: String
