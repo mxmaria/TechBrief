@@ -31,6 +31,8 @@ final class HomeViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published var sourceFilter: SourceFilter = .all
     
+    @Published private(set) var isOffline: Bool = false
+    
     private let hnService = HNService()
     private let devToService = DevToService()
     private let savedStore = SavedArticlesStore()
@@ -38,12 +40,13 @@ final class HomeViewModel: ObservableObject {
     
     @MainActor
     func load() async {
+        isOffline = false
+        
         if articles.isEmpty, let cached = cache.load() {
             let withSaved = applySavedState(to: cached)
             articles = withSaved
             state = .loaded
         } else if articles.isEmpty {
-            // no cache and nothing loaded: show spinner
             state = .loading
         }
         
@@ -58,15 +61,24 @@ final class HomeViewModel: ObservableObject {
             let devViewData = devArticles.map { ArticleViewData(from: $0) }
             
             let unified = hnViewData + devViewData
+            cache.save(unified)
             
             let withSaved = applySavedState(to: unified)
             
             self.articles = withSaved
             state = .loaded
-            
+            isOffline = false
         } catch {
+            if isNetworkError(error) {
+                isOffline = true
+            }
+            
             if articles.isEmpty {
-                state = .error(error.localizedDescription)
+                state = .error(
+                    isOffline
+                    ? "Looks like you're offline. Check your connection and try again."
+                    : "Something went wrong while loading articles."
+                )
             }
         }
     }
@@ -115,6 +127,30 @@ final class HomeViewModel: ObservableObject {
             var copy = article
             copy.isSaved = savedStore.isSaved(article.id)
             return copy
+        }
+    }
+    
+    private func isNetworkError(_ error: Error) -> Bool {
+        if let apiError = error as? APIError {
+            if case let .network(innerError) = apiError {
+                return isNetworkError(innerError)
+            } else {
+                return false
+            }
+        }
+
+        guard let urlError = error as? URLError else { return false }
+
+        switch urlError.code {
+        case .notConnectedToInternet,
+             .timedOut,
+             .cannotConnectToHost,
+             .cannotFindHost,
+             .networkConnectionLost,
+             .dnsLookupFailed:
+            return true
+        default:
+            return false
         }
     }
 }

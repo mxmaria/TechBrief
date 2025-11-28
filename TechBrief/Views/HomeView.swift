@@ -53,15 +53,26 @@ struct HomeView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             
         case .error(let message):
-            VStack(spacing: 12) {
-                Text("Couldn’t load articles")
-                    .font(.title3).bold()
-                Text(message)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+            VStack(spacing: 16) {
+                ContentUnavailableView(
+                    viewModel.isOffline ? "You're offline" : "Couldn't load articles",
+                    systemImage: viewModel.isOffline ? "wifi.slash" : "exclamationmark.triangle",
+                    description: Text(message)
+                )
                 
-                Button("Retry") {
-                    Task { await viewModel.retry() }
+                Button("Try again") {
+                    Task {
+                        await viewModel.load()
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                
+                if viewModel.isOffline {
+                    Text("You can still read your saved articles in the Saved tab.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -71,21 +82,31 @@ struct HomeView: View {
             
             if listArticles.isEmpty {
                 ContentUnavailableView(
-                    "No articles found",
-                    systemImage: "magnifyingglass",
-                    description: Text("Try a different search or source.")
+                    viewModel.isOffline ? "No cached articles" : "No articles found",
+                    systemImage: viewModel.isOffline ? "wifi.slash" : "magnifyingglass",
+                    description: viewModel.isOffline
+                    ? Text("Try going online to fetch new articles.")
+                    : Text("Try a different search or source.")
                 )
             } else {
-                List(listArticles) { article in
-                    NavigationLink(value: article) {
-                        ArticleRowView(article: article) {
-                            viewModel.toggleSaved(for: article)
+                VStack(spacing: 0) {
+                    if viewModel.isOffline {
+                        OfflineBannerView()
+                            .padding(.bottom, 4)
+                    }
+                    
+                    List(listArticles) { article in
+                        NavigationLink(value: article) {
+                            ArticleRowView(
+                                article: article,
+                                onToggleSave: { viewModel.toggleSaved(for: article) }
+                            )
                         }
                     }
-                }
-                .listStyle(.insetGrouped)
-                .refreshable {
-                    await viewModel.load()
+                    .listStyle(.insetGrouped)
+                    .refreshable {
+                        await viewModel.load()
+                    }
                 }
             }
         }

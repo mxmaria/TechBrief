@@ -12,17 +12,47 @@ struct SavedView: View {
 
     var body: some View {
         NavigationStack {
-            List(viewModel.articles.filter { $0.isSaved }) { article in
-                NavigationLink(value: article) {
-                    ArticleRowView(article: article) {
-                        viewModel.toggleSaved(for: article)
-                    }
+            content
+                .navigationTitle("Saved")
+                .navigationBarTitleDisplayMode(.large)
+                .navigationDestination(for: ArticleViewData.self) { article in
+                    ArticleDetailView(article: article)
                 }
-            }
-            .navigationTitle("Saved")
         }
         .task {
             await viewModel.load()
+        }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        let saved = viewModel.articles.filter { $0.isSaved }
+
+        if saved.isEmpty {
+            ContentUnavailableView(
+                "No saved articles",
+                systemImage: "star",
+                description: Text("Tap the star on any article to save it for later.")
+            )
+        } else {
+            VStack(spacing: 0) {
+                if viewModel.isOffline {
+                    OfflineBannerView()
+                        .padding(.vertical, 4)
+                }
+
+                List(saved) { article in
+                    NavigationLink(value: article) {
+                        ArticleRowView(
+                            article: article,
+                            onToggleSave: {
+                                viewModel.toggleSaved(for: article)
+                            }
+                        )
+                    }
+                }
+                .listStyle(.insetGrouped)
+            }
         }
     }
 }
